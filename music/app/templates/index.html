@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="pink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Sóng · Media Hub ♡ Hello Kitty Milk Pink</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800;900&family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/static/style.css">
+<!-- GSAP 3.12.5 (ghim phiên bản) -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+<!-- Màn hình chào Intro Splash (1-1.5s) -->
+<div id="splashScreen" class="splash-screen" role="dialog" aria-modal="true" aria-label="Đang mở Sóng Media Hub">
+  <div class="splash-content">
+    <div class="splash-mascot-wrap">
+      <svg viewBox="0 0 100 85" fill="none" xmlns="http://www.w3.org/2000/svg" class="splash-cat-svg" aria-hidden="true">
+        <!-- Ears -->
+        <path d="M22 34 L26 10 C27 7 30 7 33 11 L43 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M26 15 L28 11 C29 9 31 9 32 12 L38 23" fill="#FFB5C5"/>
+        <path d="M78 34 L74 10 C73 7 70 7 67 11 L57 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M74 15 L72 11 C71 9 69 9 68 12 L62 23" fill="#FFB5C5"/>
+        <!-- Head -->
+        <ellipse cx="50" cy="48" rx="38" ry="30" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3"/>
+        <!-- Blush -->
+        <ellipse cx="27" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.6"/>
+        <ellipse cx="73" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.6"/>
+        <!-- Eyes -->
+        <ellipse cx="36" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+        <circle cx="34.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+        <ellipse cx="64" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+        <circle cx="62.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+        <!-- Nose -->
+        <ellipse cx="50" cy="52" rx="3.6" ry="2.6" fill="#FFD966" stroke="#5B3A4A" stroke-width="1.6"/>
+        <!-- Whiskers -->
+        <path d="M14 44 L25 46 M12 51 L24 51 M14 58 L25 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+        <path d="M86 44 L75 46 M88 51 L76 51 M86 58 L75 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+        <!-- Iconic Bow on Left Ear -->
+        <g class="kitty-bow splash-bow" transform="translate(25, 14)">
+          <ellipse cx="-9" cy="-5" rx="8" ry="6.5" transform="rotate(-20 -9 -5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+          <path d="M-13 -6 C-11 -4 -9 -4 -8 -6" stroke="#FFA4B2" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="9" cy="5" rx="8" ry="6.5" transform="rotate(-20 9 5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+          <path d="M5 4 C7 6 9 6 10 4" stroke="#FFA4B2" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <circle cx="0" cy="0" r="5.5" fill="#FF5C8A" stroke="#5B3A4A" stroke-width="2.5"/>
+          <circle cx="-1.5" cy="-1.5" r="1.5" fill="#FFFFFF" opacity="0.8"/>
+        </g>
+      </svg>
+    </div>
+    <div class="splash-brand-text">
+      <span class="splash-char" style="--i:0">S</span>
+      <span class="splash-char" style="--i:1">ó</span>
+      <span class="splash-char" style="--i:2">n</span>
+      <span class="splash-char" style="--i:3">g</span>
+      <span class="splash-heart" style="--i:4">♡</span>
+    </div>
+    <p class="splash-sub">Cùng nghe nhạc với mèo sữa nha~</p>
+    <div class="splash-track"><div class="splash-fill"></div></div>
+  </div>
+</div>
+
+<!-- Canvas WebGL aurora sóng hồng -->
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<!-- Aurora CSS kẹo bông -->
+<div class="aurora" aria-hidden="true"></div>
+<div class="aurora-mid" aria-hidden="true"></div>
+
+<!-- Hạt bay trang trí nền -->
+<div class="bg-decors" id="bgDecors" aria-hidden="true"></div>
+
+<!-- Thanh tiến trình cuộn -->
+<div id="scrollProgress" aria-hidden="true"></div>
+<div id="scrollProgressBow" aria-hidden="true">🎀</div>
+
+<!-- Con trỏ tùy chỉnh dễ thương (Desktop) -->
+<div class="custom-cursor" id="customCursor" aria-hidden="true"></div>
+<div class="cursor-trail" id="cursorTrail" aria-hidden="true"></div>
+
+<!-- Phần tử phát âm thanh -->
+<audio id="audio" preload="none"></audio>
+
+<div class="app" data-theme="pink">
+
+<!-- Theme Switcher -->
+<div class="theme-switcher" role="group" aria-label="Chọn theme màu">
+  <button class="theme-btn active" data-theme="pink" title="Hồng sữa" aria-label="Theme hồng sữa (đang dùng)"></button>
+  <button class="theme-btn" data-theme="ocean" title="Đại dương" aria-label="Theme đại dương"></button>
+  <button class="theme-btn" data-theme="synthwave" title="Synthwave" aria-label="Theme synthwave"></button>
+  <button class="theme-btn" data-theme="lime" title="Cyber Lime" aria-label="Theme lime xanh"></button>
+</div>
+
+<!-- Nút bật/tắt Hiệu ứng -->
+<button id="fxToggle" title="Bật/Tắt hiệu ứng động" aria-label="Bật tắt hiệu ứng">✨</button>
+  <!-- THANH BÊN / TAB ĐIỀU HƯỚNG -->
+  <aside class="side glass">
+    <div class="brand" title="Bấm tui để có điều bất ngờ nè! ♡">
+      <div class="brand-mascot-wrap">
+        <svg viewBox="0 0 100 85" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-kitty-svg" aria-hidden="true">
+          <!-- Ears -->
+          <path d="M22 34 L26 10 C27 7 30 7 33 11 L43 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M26 15 L28 11 C29 9 31 9 32 12 L38 23" fill="#FFB5C5"/>
+          <path d="M78 34 L74 10 C73 7 70 7 67 11 L57 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M74 15 L72 11 C71 9 69 9 68 12 L62 23" fill="#FFB5C5"/>
+          <!-- Head -->
+          <ellipse cx="50" cy="48" rx="38" ry="30" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3"/>
+          <!-- Cheeks Blush -->
+          <ellipse cx="27" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.65"/>
+          <ellipse cx="73" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.65"/>
+          <!-- Eyes -->
+          <g class="eyes-normal">
+            <ellipse cx="36" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+            <circle cx="34.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+            <ellipse cx="64" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+            <circle cx="62.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+          </g>
+          <!-- Wink Eye -->
+          <g class="eyes-wink">
+            <ellipse cx="36" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+            <circle cx="34.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+            <path d="M60 48 Q64 43 68 48" stroke="#5B3A4A" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+          </g>
+          <!-- Nose -->
+          <ellipse cx="50" cy="52" rx="3.6" ry="2.6" fill="#FFD966" stroke="#5B3A4A" stroke-width="1.6"/>
+          <!-- Whiskers -->
+          <path d="M14 44 L25 46 M12 51 L24 51 M14 58 L25 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+          <path d="M86 44 L75 46 M88 51 L76 51 M86 58 L75 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+          <!-- Bow -->
+          <g class="kitty-bow" transform="translate(25, 14)">
+            <ellipse cx="-9" cy="-5" rx="8" ry="6.5" transform="rotate(-20 -9 -5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+            <path d="M-13 -6 C-11 -4 -9 -4 -8 -6" stroke="#FFA4B2" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="9" cy="5" rx="8" ry="6.5" transform="rotate(-20 9 5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+            <path d="M5 4 C7 6 9 6 10 4" stroke="#FFA4B2" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <circle cx="0" cy="0" r="5.5" fill="#FF5C8A" stroke="#5B3A4A" stroke-width="2.5"/>
+            <circle cx="-1.5" cy="-1.5" r="1.5" fill="#FFFFFF" opacity="0.8"/>
+          </g>
+        </svg>
+      </div>
+      <div class="brand-title">
+        <span class="brand-text">Sóng</span>
+        <span class="brand-heart">♡</span>
+      </div>
+    </div>
+
+    <!-- Nút điều hướng -->
+    <button class="nav on" data-view="home" aria-label="Trang chủ">
+      <i data-i="home"></i><span>Trang chủ</span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+    <button class="nav" data-view="youtube" aria-label="YouTube Hub">
+      <i data-i="video"></i><span>YouTube Hub</span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+    <button class="nav" data-view="soundcloud" aria-label="SoundCloud Studio">
+      <i data-i="cloud"></i><span>SoundCloud</span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+    <button class="nav" data-view="room" aria-label="Nghe chung">
+      <i data-i="users"></i><span>Nghe chung</span>
+      <span class="nav-dot" id="roomDot" hidden></span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+    <button class="nav" data-view="library" aria-label="Thư viện">
+      <i data-i="heart"></i><span>Thư viện</span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+    <button class="nav" data-view="downloads" aria-label="Tải xuống">
+      <i data-i="download"></i><span>Tải xuống</span>
+      <span class="nav-sparkle" aria-hidden="true">✦</span>
+    </button>
+  </aside>
+
+  <!-- NỘI DUNG CHÍNH -->
+  <main>
+    <!-- 1. TRANG CHỦ -->
+    <section id="view-home" class="view on">
+      <div class="view-header">
+        <div class="title-wrap">
+          <h1 class="h1">Nghe gì hôm nay nè <span class="heart-pulse">♡</span></h1>
+          <div class="mascot-badge" aria-hidden="true" title="Chào bạn iu!">
+            <svg viewBox="0 0 100 85" fill="none" xmlns="http://www.w3.org/2000/svg" class="waving-kitty-svg">
+              <path d="M22 34 L26 10 C27 7 30 7 33 11 L43 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M26 15 L28 11 C29 9 31 9 32 12 L38 23" fill="#FFB5C5"/>
+              <path d="M78 34 L74 10 C73 7 70 7 67 11 L57 27" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M74 15 L72 11 C71 9 69 9 68 12 L62 23" fill="#FFB5C5"/>
+              <ellipse cx="50" cy="48" rx="38" ry="30" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3"/>
+              <ellipse cx="27" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.6"/>
+              <ellipse cx="73" cy="53" rx="5.5" ry="3.8" fill="#FF8FB1" opacity="0.6"/>
+              <ellipse cx="36" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+              <circle cx="34.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+              <ellipse cx="64" cy="47" rx="3.3" ry="4.5" fill="#5B3A4A"/>
+              <circle cx="62.8" cy="45.2" r="1.3" fill="#FFFFFF"/>
+              <ellipse cx="50" cy="52" rx="3.6" ry="2.6" fill="#FFD966" stroke="#5B3A4A" stroke-width="1.6"/>
+              <path d="M14 44 L25 46 M12 51 L24 51 M14 58 L25 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+              <path d="M86 44 L75 46 M88 51 L76 51 M86 58 L75 56" stroke="#5B3A4A" stroke-width="2.3" stroke-linecap="round"/>
+              <g class="kitty-bow" transform="translate(25, 14)">
+                <ellipse cx="-9" cy="-5" rx="8" ry="6.5" transform="rotate(-20 -9 -5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+                <ellipse cx="9" cy="5" rx="8" ry="6.5" transform="rotate(-20 9 5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.5"/>
+                <circle cx="0" cy="0" r="5.5" fill="#FF5C8A" stroke="#5B3A4A" stroke-width="2.5"/>
+              </g>
+              <!-- Waving Paw -->
+              <g class="paw-wave">
+                <ellipse cx="86" cy="30" rx="6.5" ry="5.5" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="2.4"/>
+                <ellipse cx="86" cy="30" rx="3" ry="2.5" fill="#FFB5C5"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <p class="subtitle">Tìm một bài, nghe ngay, tải về khi cần – phiên bản Hello Kitty ngọt ngào ♡</p>
+      </div>
+
+      <form class="search" id="homeForm">
+        <div class="search-input-wrap">
+          <span class="search-icon" aria-hidden="true">🎀</span>
+          <input name="q" placeholder="Nhập tên bài hát, nghệ sĩ hoặc dán link video nè…" autocomplete="off">
+        </div>
+        <button class="btn pri">
+          <span class="btn-text">Tìm trên cả hai nguồn</span>
+          <span class="btn-sparkle" aria-hidden="true">✨</span>
+        </button>
+      </form>
+
+      <div id="homeRes" hidden>
+        <div class="section-title-wrap">
+          <h2 class="h2"><span class="badge-tag yt">YouTube</span> Kết quả tìm kiếm</h2>
+          <span class="bow-icon" aria-hidden="true">🎀</span>
+        </div>
+        <div class="grid" id="homeYT"></div>
+
+        <div class="section-title-wrap mt-8">
+          <h2 class="h2"><span class="badge-tag sc">SoundCloud</span> Kết quả tìm kiếm</h2>
+          <span class="bow-icon" aria-hidden="true">🎀</span>
+        </div>
+        <div class="grid sq" id="homeSC"></div>
+      </div>
+
+      <div class="section-title-wrap mt-8">
+        <h2 class="h2">Nghe gần đây <span class="h2-sub">♡ Mấy bài bạn thích</span></h2>
+        <span class="bow-icon" aria-hidden="true">🎀</span>
+      </div>
+      <div class="grid" id="recent"></div>
+    </section>
+
+    <!-- 2. YOUTUBE HUB -->
+    <section id="view-youtube" class="view">
+      <div class="view-header">
+        <h1 class="h1">YouTube Hub <span class="heart-pulse">♡</span></h1>
+        <p class="subtitle">Khám phá video âm nhạc chuẩn nét hoặc chỉ nghe audio tiết kiệm mạng</p>
+      </div>
+
+      <form class="search" id="ytForm">
+        <div class="search-input-wrap">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input name="q" placeholder="Tìm video hoặc nhạc trên YouTube nè…" autocomplete="off">
+        </div>
+        <button class="btn pri">
+          <span class="btn-text">Tìm kiếm</span>
+          <span class="btn-sparkle" aria-hidden="true">✨</span>
+        </button>
+      </form>
+
+      <div class="stage glass" data-stage="youtube">
+        <div class="stagebar">
+          <div class="seg" id="modeSeg">
+            <button class="on" data-mode="video">Xem video</button>
+            <button data-mode="audio">Nghe nhạc</button>
+          </div>
+          <small class="mut" id="modeHint">Phát bằng trình nhúng YouTube</small>
+        </div>
+
+        <div class="vwrap" id="ytVideoWrap">
+          <div id="ytPlayer"></div>
+        </div>
+
+        <div class="audiostage" id="ytAudioWrap" hidden>
+          <div class="pulse" id="ytArtWrap">
+            <img id="ytArt" alt="" referrerpolicy="no-referrer">
+            <div class="pulse-halo" aria-hidden="true"></div>
+          </div>
+          <canvas class="vizbig" id="vizBig" aria-label="Bộ phân tích dải tần âm thanh"></canvas>
+        </div>
+
+        <div class="info">
+          <div class="meta">
+            <h2 id="ytTitle">Chưa chọn video</h2>
+            <p id="ytArtist" class="mut">Chọn một kết quả bên dưới để bắt đầu nghe nha~</p>
+          </div>
+          <div class="acts">
+            <button class="btn" data-act="copy"><i data-i="copy"></i><span>Copy link</span></button>
+            <select id="ytQ" aria-label="Độ phân giải">
+              <option value="360">360p</option>
+              <option value="720" selected>720p (Chuẩn nét)</option>
+              <option value="1080">1080p (Full HD)</option>
+              <option value="2160">2160p (4K Cao nhất)</option>
+            </select>
+            <button class="btn" data-act="video"><i data-i="download"></i><span>Tải video</span></button>
+            <button class="btn pri" data-act="mp3"><i data-i="download"></i><span>Tải MP3</span></button>
+            <button class="btn" data-act="pl"><i data-i="listplus"></i><span>Danh sách phát</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title-wrap mt-8">
+        <h2 class="h2">Kết quả tìm kiếm</h2>
+        <span class="bow-icon" aria-hidden="true">🎀</span>
+      </div>
+      <div class="grid" id="ytResults"></div>
+    </section>
+
+    <!-- 3. SOUNDCLOUD -->
+    <section id="view-soundcloud" class="view">
+      <div class="view-header">
+        <h1 class="h1">SoundCloud Studio <span class="heart-pulse">♡</span></h1>
+        <p class="subtitle">Thưởng thức bản phối độc quyền với đĩa than kẹo ngọt và sóng âm gradient</p>
+      </div>
+
+      <form class="search" id="scForm">
+        <div class="search-input-wrap">
+          <span class="search-icon" aria-hidden="true">☁️</span>
+          <input name="q" placeholder="Tìm track trên SoundCloud nè…" autocomplete="off">
+        </div>
+        <button class="btn sc">
+          <span class="btn-text">Tìm kiếm</span>
+          <span class="btn-sparkle" aria-hidden="true">✨</span>
+        </button>
+      </form>
+
+      <div class="stage glass scstage" data-stage="soundcloud">
+        <!-- Đĩa than kẹo ngọt với kim đĩa than -->
+        <div class="disc-wrap">
+          <div class="disc" id="scDisc">
+            <img id="scArt" alt="" referrerpolicy="no-referrer">
+            <div class="disc-bow" aria-hidden="true">
+              <svg viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="bow-svg">
+                <path d="M12 13 C7 7 2 9 3 15 C4 20 9 19 12 15 Z" fill="#E8344E" stroke="#5B3A4A" stroke-width="1.8"/>
+                <path d="M20 13 C25 7 30 9 29 15 C28 20 23 19 20 15 Z" fill="#E8344E" stroke="#5B3A4A" stroke-width="1.8"/>
+                <circle cx="16" cy="14" r="4" fill="#FF5C8A" stroke="#5B3A4A" stroke-width="1.8"/>
+                <circle cx="14.8" cy="12.8" r="1.2" fill="#FFFFFF" opacity="0.8"/>
+              </svg>
+            </div>
+            <div class="disc-grooves" aria-hidden="true"></div>
+            <div class="disc-shine" aria-hidden="true"></div>
+          </div>
+          <!-- Kim đĩa than (Tonearm) -->
+          <div class="tonearm" id="scTonearm" aria-hidden="true">
+            <div class="tonearm-base"></div>
+            <div class="tonearm-arm"></div>
+            <div class="tonearm-head"></div>
+          </div>
+        </div>
+
+        <div class="scright">
+          <div class="sc-meta">
+            <h2 id="scTitle">Chưa chọn track</h2>
+            <p id="scArtist" class="mut">Tìm và chọn một track để nghe nha bạn iu.</p>
+          </div>
+          <div class="wave-container">
+            <canvas id="scWave" class="wave" aria-label="Dạng sóng âm thanh, bấm để tua"></canvas>
+            <div class="wave-hint"><small>Bấm lên sóng để tua bài ♡</small></div>
+          </div>
+          <div class="acts">
+            <button class="btn sc" data-act="mp3"><i data-i="download"></i><span>Tải MP3</span></button>
+            <button class="btn" data-act="copy"><i data-i="copy"></i><span>Copy link</span></button>
+            <button class="btn" data-act="pl"><i data-i="listplus"></i><span>Danh sách phát</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title-wrap mt-8">
+        <h2 class="h2">Kết quả SoundCloud</h2>
+        <span class="bow-icon" aria-hidden="true">🎀</span>
+      </div>
+      <div class="grid sq" id="scResults"></div>
+    </section>
+
+    <!-- 4. NGHE CHUNG (PHÒNG) -->
+    <section id="view-room" class="view">
+      <div class="view-header">
+        <h1 class="h1">Nghe chung <span class="heart-pulse">♡</span></h1>
+        <p class="subtitle">Tạo phòng, rủ bạn bè vào nghe cùng một bài cùng lúc và chat với nhau nè</p>
+      </div>
+
+      <!-- SẢNH: chưa vào phòng -->
+      <div id="roomLobby">
+        <div class="room-profile glass">
+          <div class="room-field">
+            <label for="rmName">Tên của bạn</label>
+            <input class="room-input" id="rmName" maxlength="20" placeholder="Nhập biệt danh…" autocomplete="off">
+          </div>
+          <div class="room-field">
+            <label>Ảnh đại diện</label>
+            <div class="room-avatars" id="rmAvatars"></div>
+          </div>
+        </div>
+
+        <div class="room-cols">
+          <form class="glass room-card" id="roomCreateForm">
+            <h3>🎀 Tạo phòng mới</h3>
+            <input class="room-input" name="name" maxlength="40" placeholder="Tên phòng (vd: Phòng chill cuối tuần)" autocomplete="off">
+            <input class="room-input" name="id" maxlength="20" placeholder="ID phòng tự đặt (bỏ trống để tự tạo)" autocomplete="off" spellcheck="false">
+            <input class="room-input" name="pw" maxlength="30" placeholder="Mật khẩu (không bắt buộc)" autocomplete="off">
+            <label class="room-check"><input type="checkbox" name="public"> Hiện trong danh sách phòng công khai</label>
+            <button class="btn pri"><span class="btn-text">Tạo phòng &amp; vào luôn</span><span class="btn-sparkle" aria-hidden="true">✨</span></button>
+          </form>
+
+          <form class="glass room-card" id="roomJoinForm">
+            <h3>🔑 Vào phòng bằng ID</h3>
+            <input class="room-input" name="id" maxlength="20" placeholder="Nhập ID phòng (vd: K7M2QX)" autocomplete="off" spellcheck="false">
+            <input class="room-input" name="pw" maxlength="30" placeholder="Mật khẩu (nếu phòng có đặt)" autocomplete="off">
+            <button class="btn pri"><span class="btn-text">Vào phòng</span><span class="btn-sparkle" aria-hidden="true">🎧</span></button>
+            <div id="roomRecent" class="room-recent"></div>
+          </form>
+        </div>
+
+        <div class="section-title-wrap mt-8">
+          <h2 class="h2">Phòng công khai <span class="h2-sub">♡ Vào chơi cho vui nè</span></h2>
+          <button class="ib" id="roomRefresh" type="button" title="Làm mới danh sách" aria-label="Làm mới"><i data-i="refresh"></i></button>
+        </div>
+        <div class="room-public" id="roomPublic"></div>
+      </div>
+
+      <!-- TRONG PHÒNG -->
+      <div id="roomInside" hidden>
+        <div class="room-top glass">
+          <div class="room-title">
+            <h2 id="rmRoomName">Phòng</h2>
+            <div class="room-sub">
+              <span class="room-chip" id="rmRoomId" title="ID phòng">------</span>
+              <button class="btn sm" id="rmCopyId" type="button"><i data-i="copy"></i><span>Copy ID</span></button>
+              <button class="btn sm" id="rmCopyLink" type="button"><i data-i="copy"></i><span>Copy link mời</span></button>
+            </div>
+          </div>
+          <div class="room-top-acts">
+            <label class="room-check" title="Chỉ chủ phòng đổi được"><input type="checkbox" id="rmOpen"> Mọi người cùng điều khiển</label>
+            <label class="room-check"><input type="checkbox" id="rmLoop"> Lặp hàng đợi</label>
+            <button class="btn" id="rmLeave" type="button"><i data-i="logout"></i><span>Rời phòng</span></button>
+          </div>
+        </div>
+
+        <div class="room-layout">
+          <div class="room-main">
+            <div class="glass room-now">
+              <div class="room-art"><img id="rmArt" alt="" referrerpolicy="no-referrer"><span id="rmArtEmpty">🎧</span></div>
+              <div class="room-now-info">
+                <small class="mut" id="rmStatus">Chưa có bài nào</small>
+                <h3 id="rmTitle">Thêm bài để cả phòng cùng nghe nha ♡</h3>
+                <p class="mut" id="rmArtist">Tìm bài ở ô bên dưới, bấm ▶ để phát cho cả phòng.</p>
+                <div class="room-bar"><i id="rmBar"></i></div>
+                <div class="room-time"><small id="rmCur">0:00</small><small id="rmDur">0:00</small></div>
+                <div class="room-ctrl">
+                  <button class="ib" id="rmPrev" type="button" aria-label="Bài trước"><i data-i="prev"></i></button>
+                  <button class="play" id="rmPlay" type="button" aria-label="Phát/Tạm dừng"><span id="rmPlayIcon"></span></button>
+                  <button class="ib" id="rmNext" type="button" aria-label="Bài sau"><i data-i="next"></i></button>
+                  <button class="btn sm" id="rmSync" type="button" title="Nghe bị lệch? Bấm để khớp lại với phòng"><i data-i="refresh"></i><span>Đồng bộ lại</span></button>
+                </div>
+              </div>
+            </div>
+
+            <form class="search" id="roomSearchForm">
+              <div class="search-input-wrap">
+                <span class="search-icon" aria-hidden="true">🔍</span>
+                <input name="q" placeholder="Tìm bài để thêm vào phòng…" autocomplete="off">
+              </div>
+              <select name="p" aria-label="Nguồn">
+                <option value="youtube">YouTube</option>
+                <option value="soundcloud">SoundCloud</option>
+              </select>
+              <button class="btn pri"><span class="btn-text">Tìm</span><span class="btn-sparkle" aria-hidden="true">✨</span></button>
+            </form>
+            <div class="grid" id="roomResults"></div>
+
+            <div class="section-title-wrap mt-8">
+              <h2 class="h2">Hàng đợi của phòng <span class="h2-sub" id="rmQCount"></span></h2>
+              <button class="btn sm" id="rmClearQ" type="button">Xóa hết</button>
+            </div>
+            <div id="roomQueue" class="room-queue"></div>
+          </div>
+
+          <aside class="room-side">
+            <div class="glass room-box">
+              <h3>Mọi người <small id="rmMemCount" class="mut"></small></h3>
+              <div id="roomMembers" class="room-members"></div>
+            </div>
+            <div class="glass room-box room-chatbox">
+              <h3>Chat phòng</h3>
+              <div id="roomChat" class="room-chat" aria-live="polite"></div>
+              <div class="room-reacts" id="roomReacts"></div>
+              <form id="roomChatForm" class="room-chatform">
+                <input class="room-input" name="t" maxlength="500" placeholder="Nhắn gì đó nè…" autocomplete="off">
+                <button class="ib send" aria-label="Gửi"><i data-i="send"></i></button>
+              </form>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. THƯ VIỆN -->
+    <section id="view-library" class="view">
+      <div class="view-header">
+        <h1 class="h1">Thư viện của bạn <span class="heart-pulse">♡</span></h1>
+        <p class="subtitle">Bộ sưu tập danh sách bài hát kẹo ngọt lưu trên trình duyệt của bạn</p>
+      </div>
+
+      <form class="search" id="newList">
+        <div class="search-input-wrap">
+          <span class="search-icon" aria-hidden="true">📁</span>
+          <input name="n" placeholder="Tên danh sách phát mới (vd: Nhạc dâu tây chill ♡)" maxlength="40" autocomplete="off">
+        </div>
+        <button class="btn pri">
+          <span class="btn-text">Tạo danh sách</span>
+          <span class="btn-sparkle" aria-hidden="true">✨</span>
+        </button>
+      </form>
+      <div id="libList"></div>
+    </section>
+
+    <!-- 6. TẢI XUỐNG -->
+    <section id="view-downloads" class="view">
+      <div class="view-header">
+        <h1 class="h1">Tải xuống <span class="heart-pulse">♡</span></h1>
+        <p class="subtitle">Dán link từ YouTube hoặc SoundCloud để lưu về máy nhanh chóng</p>
+      </div>
+
+      <form class="search" id="dlForm">
+        <div class="search-input-wrap">
+          <span class="search-icon" aria-hidden="true">🔗</span>
+          <input name="u" placeholder="Dán liên kết YouTube hoặc SoundCloud vô đây nè…" autocomplete="off">
+        </div>
+        <select name="m" aria-label="Định dạng tải">
+          <option value="mp3">MP3 (Âm thanh)</option>
+          <option value="video">Video 720p (Chuẩn nét)</option>
+          <option value="video1080">Video 1080p (Full HD)</option>
+        </select>
+        <button class="btn pri">
+          <span class="btn-text">Tải về</span>
+          <span class="btn-sparkle" aria-hidden="true">✨</span>
+        </button>
+      </form>
+      <div id="dlList"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Hàng đợi phát nhạc (Queue Drawer) -->
+<aside id="queueDrawer" class="glass" aria-label="Danh sách hàng đợi">
+  <div class="lh">
+    <div class="queue-title-wrap">
+      <h3>Hàng đợi <span class="heart-pulse">♡</span></h3>
+      <span class="bow-mini" aria-hidden="true">🎀</span>
+    </div>
+    <button class="ib" data-close-q aria-label="Đóng hàng đợi"><i data-i="x"></i></button>
+  </div>
+  <div id="queueList"></div>
+</aside>
+
+<!-- Cảm xúc bay (phòng nghe chung) -->
+<div id="roomFloat" aria-hidden="true"></div>
+
+<!-- Thanh điều hướng dưới (mobile) -->
+<nav class="mobile-nav" aria-label="Điều hướng">
+  <button class="mobile-nav-btn on" data-view="home"><i data-i="home"></i><span>Nhà</span></button>
+  <button class="mobile-nav-btn" data-view="youtube"><i data-i="video"></i><span>YouTube</span></button>
+  <button class="mobile-nav-btn" data-view="soundcloud"><i data-i="cloud"></i><span>SC</span></button>
+  <button class="mobile-nav-btn" data-view="room"><i data-i="users"></i><span>Phòng</span></button>
+  <button class="mobile-nav-btn" data-view="library"><i data-i="heart"></i><span>Thư viện</span></button>
+  <button class="mobile-nav-btn" data-view="downloads"><i data-i="download"></i><span>Tải</span></button>
+</nav>
+
+<!-- Modal chọn danh sách phát -->
+<div id="modal" role="dialog" aria-modal="true"></div>
+
+<!-- Toast thông báo bong bóng thoại mèo dễ thương -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- THANH PHÁT NHẠC CỐ ĐỊNH (FIXED PLAYER) -->
+<footer id="player" class="glass" role="region" aria-label="Trình phát nhạc">
+  <!-- Mascot mèo ngồi vắt vẻo trên mép player -->
+  <div class="player-mascot" id="playerMascot" title="Bấm tui để có bất ngờ nha! ♡" role="button" tabindex="0" aria-label="Mèo sữa Hello Kitty">
+    <div class="mascot-body">
+      <svg viewBox="0 0 110 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="player-kitty-svg" aria-hidden="true">
+        <!-- Ears -->
+        <path d="M26 32 L30 8 C31 5 34 5 37 9 L47 25" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M30 13 L32 9 C33 7 35 7 36 10 L42 21" fill="#FFB5C5"/>
+        <path d="M84 32 L80 8 C79 5 76 5 73 9 L63 25" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M80 13 L78 9 C77 7 75 7 74 10 L68 21" fill="#FFB5C5"/>
+        <!-- Head -->
+        <ellipse cx="55" cy="46" rx="36" ry="28" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="3"/>
+        <!-- Cheeks Blush -->
+        <ellipse cx="32" cy="51" rx="5" ry="3.5" fill="#FF8FB1" opacity="0.6"/>
+        <ellipse cx="78" cy="51" rx="5" ry="3.5" fill="#FF8FB1" opacity="0.6"/>
+        <!-- Eyes Awake -->
+        <g class="eyes-awake">
+          <ellipse cx="41" cy="45" rx="3.2" ry="4.3" fill="#5B3A4A"/>
+          <circle cx="39.8" cy="43.5" r="1.2" fill="#FFFFFF"/>
+          <ellipse cx="69" cy="45" rx="3.2" ry="4.3" fill="#5B3A4A"/>
+          <circle cx="67.8" cy="43.5" r="1.2" fill="#FFFFFF"/>
+        </g>
+        <!-- Eyes Asleep -->
+        <g class="eyes-asleep">
+          <path d="M37 47 Q41 52 45 47" stroke="#5B3A4A" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+          <path d="M65 47 Q69 52 73 47" stroke="#5B3A4A" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        </g>
+        <!-- Nose -->
+        <ellipse cx="55" cy="50" rx="3.5" ry="2.5" fill="#FFD966" stroke="#5B3A4A" stroke-width="1.5"/>
+        <!-- Whiskers -->
+        <path d="M20 42 L31 44 M18 49 L30 49 M20 56 L31 54" stroke="#5B3A4A" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M90 42 L79 44 M92 49 L80 49 M90 56 L79 54" stroke="#5B3A4A" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- Bow on Left Ear -->
+        <g class="kitty-bow" transform="translate(30, 12)">
+          <ellipse cx="-8" cy="-5" rx="7.5" ry="6" transform="rotate(-20 -8 -5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.4"/>
+          <ellipse cx="8" cy="5" rx="7.5" ry="6" transform="rotate(-20 8 5)" fill="#E8344E" stroke="#5B3A4A" stroke-width="2.4"/>
+          <circle cx="0" cy="0" r="5" fill="#FF5C8A" stroke="#5B3A4A" stroke-width="2.4"/>
+          <circle cx="-1.2" cy="-1.2" r="1.4" fill="#FFFFFF" opacity="0.8"/>
+        </g>
+        <!-- Paws resting over player border -->
+        <ellipse cx="38" cy="74" rx="8" ry="5.5" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="2.5"/>
+        <path d="M36 71 L36 76 M40 71 L40 76" stroke="#5B3A4A" stroke-width="1.5" stroke-linecap="round"/>
+        <ellipse cx="72" cy="74" rx="8" ry="5.5" fill="#FFFFFF" stroke="#5B3A4A" stroke-width="2.5"/>
+        <path d="M70 71 L70 76 M74 71 L74 76" stroke="#5B3A4A" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <!-- Bong bóng ngủ zZ bay lên khi tạm dừng -->
+    <div class="mascot-zz" id="mascotZz" aria-hidden="true">
+      <span style="--d:0s">z</span>
+      <span style="--d:0.4s">Z</span>
+      <span style="--d:0.8s">z</span>
+    </div>
+  </div>
+
+  <!-- Bên trái: Bìa bài hát + Tên bài -->
+  <div class="pleft">
+    <div class="art-frame">
+      <img id="pArt" alt="" referrerpolicy="no-referrer">
+      <div class="art-bow" aria-hidden="true">🎀</div>
+    </div>
+    <div class="track-text">
+      <b id="pTitle">Chưa phát gì</b>
+      <small id="pArtist" class="mut">Chọn bài hát nha ♡</small>
+      <button class="room-pill" id="roomPill" type="button" hidden title="Đang nghe chung, bấm để mở phòng"></button>
+    </div>
+  </div>
+
+  <!-- Ở giữa: Nút điều khiển + Thanh tua nhạc -->
+  <div class="pmid">
+    <div class="ctrl">
+      <button class="ib" id="bShuffle" aria-label="Ngẫu nhiên" title="Bật/Tắt phát ngẫu nhiên">
+        <i data-i="shuffle"></i>
+      </button>
+      <button class="ib" id="bPrev" aria-label="Bài trước" title="Bài trước">
+        <i data-i="prev"></i>
+      </button>
+      <button class="play" id="bPlay" aria-label="Phát/Tạm dừng" title="Phát hoặc Tạm dừng">
+        <span id="ppIcon"></span>
+        <span class="play-pulse-ring" aria-hidden="true"></span>
+      </button>
+      <button class="ib" id="bNext" aria-label="Bài sau" title="Bài sau">
+        <i data-i="next"></i>
+      </button>
+      <button class="ib" id="bRepeat" aria-label="Lặp lại" title="Chế độ lặp lại">
+        <i data-i="repeat"></i>
+        <span class="repeat-badge" id="repeatBadge" aria-hidden="true">1</span>
+      </button>
+    </div>
+    <div class="prog">
+      <small id="tCur">0:00</small>
+      <div class="seek-wrap">
+        <input type="range" id="seek" min="0" max="1" step="0.1" value="0" aria-label="Tua thời gian">
+        <div class="seek-tooltip" id="seekTooltip">0:00</div>
+      </div>
+      <small id="tDur">0:00</small>
+    </div>
+  </div>
+
+  <!-- Bên phải: Sóng mini + Âm lượng + Mở hàng đợi -->
+  <div class="pright">
+    <canvas id="viz" aria-label="Sóng âm thanh mini"></canvas>
+    <div class="vol-wrap">
+      <i data-i="vol"></i>
+      <input type="range" id="vol" min="0" max="1" step="0.01" value="1" aria-label="Âm lượng">
+    </div>
+    <button class="ib" id="bQueue" aria-label="Hàng đợi" title="Mở danh sách hàng đợi">
+      <i data-i="list"></i>
+    </button>
+  </div>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
+<script src="/static/room.js"></script>
+</body>
+</html>
+
+<!-- FX System — ES Modules, load sau app.js và room.js -->
+<script type="module">
+  // ============================================================
+  // SONG FX — Điều phối tất cả animation modules
+  // ============================================================
+
+  // Lazy import để không block main thread
+  const prefRM = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fxEnabled = () => localStorage.getItem('songFxEnabled') !== 'false';
+
+  // Import các FX modules
+  const [{ init: initScroll, destroy: destroyScroll },
+         { init: initAudio,  destroy: destroyAudio  },
+         { init: initMotion, animateViewTransition, animateCardToPlayer,
+           animateCardToQueue, animateMemberJoin, floatRoomEmoji,
+           animateChatMessage, initSplashCinematic, circularReveal },
+         { init: initGL,     destroy: destroyGL      }]
+    = await Promise.all([
+        import('/static/fx/scroll.js'),
+        import('/static/fx/audio-reactive.js'),
+        import('/static/fx/motion.js'),
+        import('/static/fx/gl.js')
+      ]);
+
+  // Expose để app.js và room.js có thể gọi
+  window.SONG_FX = {
+    animateCardToPlayer,
+    animateCardToQueue,
+    animateMemberJoin,
+    floatRoomEmoji,
+    animateChatMessage,
+    circularReveal
+  };
+
+  // Expose analyser cho gl.js
+  // (app.js set window.__analyser trong initAnalyser)
+
+  function startFX() {
+    if (!fxEnabled()) return;
+    initGL();
+    initScroll();
+    initAudio();
+    initMotion();
+    // Thay initSplashScreen của app.js bằng cinematic version
+    // (app.js đã gọi initSplashScreen, chúng ta nâng cấp splash ở đây)
+    initSplashCinematic();
+  }
+
+  function stopFX() {
+    destroyGL();
+    destroyScroll();
+    destroyAudio();
+  }
+
+  // Chạy FX sau DOM ready
+  startFX();
+
+  // ============================================================
+  // HOOK vào go() để thêm view transition animation
+  // ============================================================
+  const _go = window.go;
+  if (_go) {
+    window.go = function(v) {
+      const currentView = document.querySelector('.view.on')?.id?.replace('view-', '') || 'home';
+      if (prefRM() || !fxEnabled()) {
+        _go(v);
+        return;
+      }
+      animateViewTransition(currentView, v, () => _go(v));
+    };
+  }
+
+  // ============================================================
+  // HOOK vào loadTrack để animate album art bay xuống player
+  // ============================================================
+  document.addEventListener('click', e => {
+    const playBtn = e.target.closest('[data-act="play"]');
+    if (playBtn && fxEnabled() && !prefRM()) {
+      const cardEl = playBtn.closest('.card, [data-k]');
+      if (cardEl) {
+        setTimeout(() => animateCardToPlayer(cardEl), 80);
+      }
+    }
+    // Animate card bay vào queue
+    const queueBtn = e.target.closest('[data-act="queue"]');
+    if (queueBtn && fxEnabled() && !prefRM()) {
+      const cardEl = queueBtn.closest('.card, [data-k]');
+      if (cardEl) animateCardToQueue(cardEl);
+    }
+  }, { capture: true });
+
+  // ============================================================
+  // THEME SWITCHER — Circular reveal
+  // ============================================================
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const theme = btn.dataset.theme;
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      if (fxEnabled() && !prefRM()) {
+        circularReveal(cx, cy, theme);
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      localStorage.setItem('songTheme', theme);
+    });
+  });
+
+  // Restore theme từ localStorage
+  const savedTheme = localStorage.getItem('songTheme') || 'pink';
+  if (savedTheme !== 'pink') {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`)?.classList.add('active');
+    document.querySelector('.theme-btn[data-theme="pink"]')?.classList.remove('active');
+  }
+
+  // ============================================================
+  // NÚT BẬT/TẮT HIỆU ỨNG
+  // ============================================================
+  const fxBtn = document.getElementById('fxToggle');
+  if (fxBtn) {
+    // Restore state
+    if (!fxEnabled()) {
+      fxBtn.classList.add('fx-off');
+      fxBtn.title = 'Bật hiệu ứng';
+    }
+    fxBtn.addEventListener('click', () => {
+      const enabled = fxEnabled();
+      if (enabled) {
+        localStorage.setItem('songFxEnabled', 'false');
+        stopFX();
+        fxBtn.classList.add('fx-off');
+        fxBtn.title = 'Bật hiệu ứng';
+        fxBtn.setAttribute('aria-label', 'Bật hiệu ứng động');
+      } else {
+        localStorage.setItem('songFxEnabled', 'true');
+        startFX();
+        fxBtn.classList.remove('fx-off');
+        fxBtn.title = 'Tắt hiệu ứng';
+        fxBtn.setAttribute('aria-label', 'Tắt hiệu ứng động');
+      }
+    });
+  }
+
+  // ============================================================
+  // EXPOSE __analyser cho gl.js và audio-reactive.js
+  // Patch initAnalyser của app.js để set window.__analyser
+  // ============================================================
+  // Monkey-patch audio element events để capture analyser
+  const audioEl = document.getElementById('audio');
+  if (audioEl) {
+    const origPlay = audioEl.play.bind(audioEl);
+    // Chờ app.js khởi tạo analyser
+    const checkAnalyser = setInterval(() => {
+      // app.js set `an` (AnalyserNode) trong initAnalyser()
+      // Chúng ta tìm nó qua AudioContext
+      if (window.__analyser) {
+        clearInterval(checkAnalyser);
+      } else {
+        // Try to get via AudioWorklet/AudioContext check
+        // app.js sẽ được patch ở đây: thêm 1 dòng set window.__analyser
+      }
+    }, 500);
+  }
+</script>
+</body>
+</html>
